@@ -13,23 +13,27 @@ export const Leaderboard = ({ onClose }: LeaderboardProps) => {
   const { leaderboard, playerRank, isLoading, refresh } = useLeaderboard(address, 20);
 
   return (
-    <div className="flex flex-col p-6 bg-gradient-to-b from-purple-600 to-purple-800 rounded-xl shadow-2xl max-w-2xl mx-auto max-h-[80vh] overflow-hidden">
+    <div className="retro-panel scanlines max-w-2xl mx-auto max-h-[80vh] overflow-hidden flex flex-col">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-white drop-shadow">🏆 Leaderboard</h2>
+        <div className="retro-panel bg-black px-6 py-3">
+          <h2 className="pixel-text text-xl" style={{ color: '#f7d51d' }}>
+            🏆 LEADERBOARD
+          </h2>
+        </div>
         <button
           onClick={onClose}
-          className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all"
+          className="retro-btn retro-btn-red text-xs px-4 py-2"
         >
-          ✕ Close
+          ✕
         </button>
       </div>
 
       {/* Player Rank */}
       {address && playerRank > 0 && (
-        <div className="mb-4 p-4 bg-yellow-400/20 border-2 border-yellow-400 rounded-lg">
-          <p className="text-yellow-300 text-sm mb-1">Your Rank</p>
-          <p className="text-yellow-400 text-3xl font-bold">#{playerRank}</p>
+        <div className="retro-panel bg-black p-4 mb-4" style={{ borderColor: '#f7d51d' }}>
+          <p className="text-xs mb-2" style={{ color: '#f7d51d' }}>YOUR RANK</p>
+          <p className="pixel-text text-3xl" style={{ color: '#f7d51d' }}>#{playerRank}</p>
         </div>
       )}
 
@@ -37,60 +41,79 @@ export const Leaderboard = ({ onClose }: LeaderboardProps) => {
       <button
         onClick={refresh}
         disabled={isLoading}
-        className="mb-4 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all disabled:opacity-50"
+        className="retro-btn w-full text-xs mb-4"
       >
-        {isLoading ? '⏳ Loading...' : '🔄 Refresh'}
+        {isLoading ? <span className="blink">⏳ LOADING...</span> : '🔄 REFRESH'}
       </button>
 
       {/* Leaderboard List */}
-      <div className="flex-1 overflow-y-auto space-y-2">
+      <div className="flex-1 overflow-y-auto space-y-3">
         {isLoading && leaderboard.length === 0 ? (
-          <div className="text-center text-white/60 py-8">Loading leaderboard...</div>
+          <div className="retro-panel bg-white p-8 text-center">
+            <p className="pixel-text text-sm blink" style={{ color: '#454545' }}>
+              LOADING...
+            </p>
+          </div>
         ) : leaderboard.length === 0 ? (
-          <div className="text-center text-white/60 py-8">
-            No scores yet. Be the first to play!
+          <div className="retro-panel bg-white p-8 text-center">
+            <p className="text-xs" style={{ color: '#454545' }}>
+              NO SCORES YET!<br/>BE THE FIRST TO PLAY!
+            </p>
           </div>
         ) : (
           leaderboard.map((entry) => (
             <div
               key={`${entry.address}-${entry.timestamp}`}
-              className={`p-4 rounded-lg flex items-center justify-between ${
+              className={`retro-panel p-4 flex items-center justify-between ${
                 entry.address === address
-                  ? 'bg-yellow-400/30 border-2 border-yellow-400'
-                  : 'bg-white/10 backdrop-blur-sm'
+                  ? 'bg-yellow-300'
+                  : 'bg-white'
               }`}
             >
               {/* Rank */}
               <div className="flex items-center gap-4 flex-1">
                 <div
-                  className={`text-2xl font-bold ${
+                  className={`pixel-text text-xl ${
                     entry.rank === 1
-                      ? 'text-yellow-400'
+                      ? ''
                       : entry.rank === 2
-                      ? 'text-gray-300'
+                      ? ''
                       : entry.rank === 3
-                      ? 'text-orange-400'
-                      : 'text-white/70'
+                      ? ''
+                      : ''
                   }`}
+                  style={{
+                    color: entry.rank === 1
+                      ? '#f7d51d'
+                      : entry.rank === 2
+                      ? '#c0c0c0'
+                      : entry.rank === 3
+                      ? '#cd7f32'
+                      : '#454545'
+                  }}
                 >
                   {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
                 </div>
 
                 {/* Player Info */}
                 <div className="flex-1">
-                  <p className="text-white font-semibold">
-                    {entry.name || 'Anonymous'}
+                  <p className="text-xs font-bold" style={{ color: '#212529' }}>
+                    {entry.name || 'ANONYMOUS'}
                     {entry.address === address && (
-                      <span className="ml-2 text-xs text-yellow-300">(You)</span>
+                      <span className="ml-2" style={{ color: '#f7d51d' }}>(YOU)</span>
                     )}
                   </p>
-                  <p className="text-white/60 text-xs">{shortenAddress(entry.address, 4)}</p>
+                  <p className="text-xs" style={{ color: '#454545' }}>
+                    {shortenAddress(entry.address, 4)}
+                  </p>
                 </div>
 
                 {/* Score */}
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-white">{entry.score}</p>
-                  <p className="text-white/60 text-xs">
+                  <p className="pixel-text text-lg" style={{ color: '#92cc41' }}>
+                    {entry.score}
+                  </p>
+                  <p className="text-xs" style={{ color: '#454545' }}>
                     {new Date(entry.timestamp * 1000).toLocaleDateString()}
                   </p>
                 </div>

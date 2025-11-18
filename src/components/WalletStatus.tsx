@@ -1,15 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useWallet } from '@/hooks/useWallet';
 import { shortenAddress } from '@/utils/web3Client';
 import { ERROR_MESSAGES, EXTERNAL_URLS } from '@/utils/constants';
 
-/**
- * WalletStatus Component
- *
- * Displays wallet connection status and balance information
- * Demonstrates usage of the useWallet hook
- */
 export const WalletStatus = () => {
   const {
     address,
@@ -23,148 +18,157 @@ export const WalletStatus = () => {
     refreshBalance,
   } = useWallet();
 
-  // ============================================
-  // RENDER: NOT IN BROWSER
-  // ============================================
+  const [mounted, setMounted] = useState(false);
+  const [hasWallet, setHasWallet] = useState(false);
 
-  if (typeof window === 'undefined') {
-    return null;
+  // Only run on client-side to prevent hydration errors
+  useEffect(() => {
+    setMounted(true);
+    setHasWallet(typeof window !== 'undefined' && !!window.ethereum);
+  }, []);
+
+  // Don't render anything until mounted (prevents hydration errors)
+  if (!mounted) {
+    return (
+      <div className="retro-panel max-w-2xl mx-auto">
+        <div className="text-center blink pixel-text text-sm">
+          LOADING...
+        </div>
+      </div>
+    );
   }
 
-  // ============================================
-  // RENDER: NO WALLET DETECTED
-  // ============================================
-
-  if (!window.ethereum) {
+  // No wallet detected
+  if (!hasWallet) {
     return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-        <h3 className="text-lg font-semibold text-red-800 mb-2">
-          ❌ No Wallet Detected
-        </h3>
-        <p className="text-red-600 mb-4">{ERROR_MESSAGES.WALLET_NOT_FOUND}</p>
+      <div className="retro-panel max-w-2xl mx-auto">
+        <div className="retro-panel bg-red-600 px-6 py-3 mb-4">
+          <h3 className="pixel-text text-sm text-white text-center">
+            ❌ NO WALLET
+          </h3>
+        </div>
+        <p className="text-xs mb-4 text-center" style={{ color: '#454545' }}>
+          {ERROR_MESSAGES.WALLET_NOT_FOUND}
+        </p>
         <a
           href={EXTERNAL_URLS.MINIPAY_DOWNLOAD}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          className="retro-btn retro-btn-red w-full text-sm"
         >
-          Download MiniPay
+          GET MINIPAY
         </a>
       </div>
     );
   }
 
-  // ============================================
-  // RENDER: NOT MINIPAY WARNING
-  // ============================================
-
-  const showMiniPayWarning = !isMiniPay && !isConnected;
-
-  // ============================================
-  // RENDER: ERROR STATE
-  // ============================================
-
+  // Error state
   if (error && !isConnected) {
     return (
-      <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <h3 className="text-lg font-semibold text-yellow-800 mb-2">
-          ⚠️ Connection Error
-        </h3>
-        <p className="text-yellow-700 mb-4">{error}</p>
+      <div className="retro-panel max-w-2xl mx-auto">
+        <div className="retro-panel bg-yellow-500 px-6 py-3 mb-4">
+          <h3 className="pixel-text text-sm text-black text-center">
+            ⚠️ ERROR
+          </h3>
+        </div>
+        <p className="text-xs mb-4 text-center" style={{ color: '#454545' }}>
+          {error}
+        </p>
         <button
           onClick={connect}
           disabled={isConnecting}
-          className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50"
+          className="retro-btn w-full text-sm"
         >
-          {isConnecting ? 'Connecting...' : 'Try Again'}
+          {isConnecting ? 'CONNECTING...' : 'TRY AGAIN'}
         </button>
       </div>
     );
   }
 
-  // ============================================
-  // RENDER: NOT CONNECTED
-  // ============================================
-
+  // Not connected
   if (!isConnected) {
+    const showMiniPayWarning = !isMiniPay;
+
     return (
-      <div className="p-6 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="retro-panel max-w-2xl mx-auto">
         {showMiniPayWarning && (
-          <div className="mb-4 p-3 bg-yellow-100 border border-yellow-300 rounded">
-            <p className="text-sm text-yellow-800">
+          <div className="retro-panel bg-yellow-500 p-4 mb-4">
+            <p className="text-xs text-black">
               ⚠️ {ERROR_MESSAGES.NOT_MINIPAY}
             </p>
           </div>
         )}
 
-        <h3 className="text-lg font-semibold text-blue-800 mb-2">
-          {isMiniPay ? '🎮 Connect with MiniPay' : '👛 Connect Wallet'}
-        </h3>
-        <p className="text-blue-600 mb-4">
-          Connect your wallet to start playing and earning cUSD rewards!
-        </p>
+        <div className="text-center mb-4">
+          <h3 className="pixel-text text-xl mb-2" style={{ color: '#212529' }}>
+            {isMiniPay ? '🎮 MINIPAY' : '👛 WALLET'}
+          </h3>
+          <p className="text-xs" style={{ color: '#454545' }}>
+            CONNECT TO START
+          </p>
+        </div>
+
         <button
-          onClick={connect}
+          onClick={() => {
+            console.log('🔘 Connect button clicked');
+            connect();
+          }}
           disabled={isConnecting}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+          className="retro-btn retro-btn-blue w-full text-sm"
         >
           {isConnecting ? (
-            <span className="flex items-center">
-              <span className="animate-spin mr-2">⏳</span>
-              Connecting...
-            </span>
+            <span className="blink">CONNECTING...</span>
           ) : (
-            'Connect Wallet'
+            '🔗 CONNECT'
           )}
         </button>
       </div>
     );
   }
 
-  // ============================================
-  // RENDER: CONNECTED
-  // ============================================
-
+  // Connected
   return (
-    <div className="p-6 bg-green-50 border border-green-200 rounded-lg">
+    <div className="retro-panel max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-green-800 mb-1">
-            ✅ Wallet Connected
-          </h3>
+          <div className="pixel-text text-sm" style={{ color: '#92cc41' }}>
+            ✅ CONNECTED
+          </div>
           {isMiniPay && (
-            <span className="inline-block px-2 py-1 bg-green-200 text-green-800 text-xs rounded">
-              MiniPay
-            </span>
+            <div className="text-xs mt-1" style={{ color: '#454545' }}>
+              MINIPAY
+            </div>
           )}
         </div>
         <button
           onClick={disconnect}
-          className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+          className="retro-btn retro-btn-red text-xs px-3 py-2"
         >
-          Disconnect
+          ✕
         </button>
       </div>
 
       {/* Address */}
       <div className="mb-4">
-        <p className="text-sm text-green-700 mb-1">Address:</p>
-        <code className="block p-2 bg-white rounded border border-green-300 text-sm font-mono">
-          {address ? shortenAddress(address, 6) : 'N/A'}
-        </code>
+        <p className="text-xs mb-2" style={{ color: '#454545' }}>ADDRESS:</p>
+        <div className="retro-panel bg-white p-3">
+          <code className="text-xs" style={{ color: '#212529' }}>
+            {address ? shortenAddress(address, 6) : 'N/A'}
+          </code>
+        </div>
       </div>
 
       {/* Balances */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="p-3 bg-white rounded border border-green-300">
-          <p className="text-xs text-green-600 mb-1">cUSD Balance</p>
-          <p className="text-lg font-semibold text-green-800">
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="retro-panel bg-white p-3">
+          <p className="text-xs mb-1" style={{ color: '#454545' }}>cUSD</p>
+          <p className="pixel-text text-sm" style={{ color: '#92cc41' }}>
             {parseFloat(balance.cUSD).toFixed(4)}
           </p>
         </div>
-        <div className="p-3 bg-white rounded border border-green-300">
-          <p className="text-xs text-green-600 mb-1">CELO Balance</p>
-          <p className="text-lg font-semibold text-green-800">
+        <div className="retro-panel bg-white p-3">
+          <p className="text-xs mb-1" style={{ color: '#454545' }}>CELO</p>
+          <p className="pixel-text text-sm" style={{ color: '#209cee' }}>
             {parseFloat(balance.CELO).toFixed(4)}
           </p>
         </div>
@@ -173,16 +177,10 @@ export const WalletStatus = () => {
       {/* Refresh Button */}
       <button
         onClick={refreshBalance}
-        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+        className="retro-btn w-full text-xs"
       >
-        🔄 Refresh Balance
+        🔄 REFRESH
       </button>
-
-      {error && (
-        <div className="mt-4 p-3 bg-red-100 border border-red-300 rounded">
-          <p className="text-sm text-red-800">{error}</p>
-        </div>
-      )}
     </div>
   );
 };

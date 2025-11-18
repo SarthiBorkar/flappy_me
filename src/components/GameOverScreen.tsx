@@ -26,7 +26,7 @@ export const GameOverScreen = ({
 }: GameOverScreenProps) => {
   const { address } = useWallet();
   const [showNFTMinting, setShowNFTMinting] = useState(false);
-  const [playerName, setPlayerName] = useState('Anonymous');
+  const [playerName, setPlayerName] = useState('PLAYER1');
   const reward = calculateReward(score);
   const canMint = canMintNFT(score);
   const isNewHighScore = score >= highScore;
@@ -40,44 +40,58 @@ export const GameOverScreen = ({
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-red-500 to-red-700 rounded-xl shadow-2xl max-w-md mx-auto">
+    <div className="retro-panel scanlines max-w-2xl mx-auto">
       {/* Game Over Title */}
-      <h2 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">
-        Game Over!
-      </h2>
-
-      {isNewHighScore && score > 0 && (
-        <div className="mb-4 px-4 py-2 bg-yellow-400 rounded-lg">
-          <p className="text-gray-900 font-bold text-lg">🎉 New High Score!</p>
+      <div className="text-center mb-6">
+        <div className="retro-panel bg-red-600 px-8 py-4 mb-4">
+          <h2 className="pixel-text text-4xl" style={{ color: '#fff' }}>
+            GAME OVER
+          </h2>
         </div>
-      )}
 
-      {/* Score Display */}
-      <div className="mb-6 p-6 bg-white/20 backdrop-blur-sm rounded-lg border-4 border-white/40 w-full">
-        <p className="text-white/80 text-center mb-2">Final Score</p>
-        <p className="text-7xl font-bold text-white text-center drop-shadow-lg">{score}</p>
+        {isNewHighScore && score > 0 && (
+          <div className="blink mb-4">
+            <div className="pixel-text text-xl" style={{ color: '#f7d51d' }}>
+              ★ NEW HIGH SCORE! ★
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Final Score */}
+      <div className="mb-6">
+        <div className="retro-panel bg-black p-6">
+          <p className="text-xs text-center mb-2" style={{ color: '#92cc41' }}>FINAL SCORE</p>
+          <p className="retro-score text-center">{score.toString().padStart(6, '0')}</p>
+        </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6 w-full">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         {/* High Score */}
-        <div className="p-4 bg-white/10 backdrop-blur-sm rounded-lg">
-          <p className="text-white/70 text-xs mb-1">High Score</p>
-          <p className="text-2xl font-bold text-yellow-300">{highScore}</p>
+        <div className="retro-panel bg-white p-4">
+          <p className="text-xs mb-2" style={{ color: '#454545' }}>HIGH SCORE</p>
+          <p className="pixel-text text-xl" style={{ color: '#212529' }}>
+            {highScore.toString().padStart(6, '0')}
+          </p>
         </div>
 
         {/* Rank */}
         {rank !== undefined && rank > 0 && (
-          <div className="p-4 bg-white/10 backdrop-blur-sm rounded-lg">
-            <p className="text-white/70 text-xs mb-1">Global Rank</p>
-            <p className="text-2xl font-bold text-yellow-300">#{rank}</p>
+          <div className="retro-panel bg-white p-4">
+            <p className="text-xs mb-2" style={{ color: '#454545' }}>RANK</p>
+            <p className="pixel-text text-xl" style={{ color: '#212529' }}>
+              #{rank}
+            </p>
           </div>
         )}
 
         {/* Reward */}
-        <div className="p-4 bg-white/10 backdrop-blur-sm rounded-lg col-span-2">
-          <p className="text-white/70 text-xs mb-1">Earned</p>
-          <p className="text-2xl font-bold text-green-300">{reward.toFixed(4)} cUSD</p>
+        <div className="retro-panel bg-white p-4 col-span-2">
+          <p className="text-xs mb-2" style={{ color: '#454545' }}>REWARD</p>
+          <p className="pixel-text text-xl" style={{ color: '#92cc41' }}>
+            {reward.toFixed(4)} cUSD
+          </p>
         </div>
       </div>
 
@@ -85,14 +99,14 @@ export const GameOverScreen = ({
       {canMint && !showNFTMinting && (
         <button
           onClick={() => setShowNFTMinting(true)}
-          className="w-full mb-3 px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-lg shadow-lg transition-all"
+          className="retro-btn retro-btn-blue w-full mb-3 text-sm"
         >
-          🎨 Mint Score as NFT
+          🎨 MINT NFT
         </button>
       )}
 
       {showNFTMinting && birdImage && (
-        <div className="w-full mb-4">
+        <div className="mb-4">
           <NFTMinting
             score={score}
             playerName={playerName}
@@ -103,25 +117,32 @@ export const GameOverScreen = ({
       )}
 
       {/* Social Share */}
-      <div className="w-full mb-6">
+      <div className="mb-6">
         <SocialShare score={score} playerName={playerName} />
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col gap-3 w-full">
+      <div className="space-y-3">
         <button
           onClick={onRestart}
-          className="px-6 py-4 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold text-xl rounded-lg shadow-lg transition-all transform hover:scale-105"
+          className="retro-btn retro-btn-green w-full text-lg"
         >
-          🔄 Play Again
+          🔄 PLAY AGAIN
         </button>
 
         <button
           onClick={onViewLeaderboard}
-          className="px-6 py-3 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-lg transition-all"
+          className="retro-btn w-full text-sm"
         >
-          🏆 View Leaderboard
+          🏆 VIEW LEADERBOARD
         </button>
+      </div>
+
+      {/* Continue Prompt */}
+      <div className="mt-6 text-center blink">
+        <p className="text-xs" style={{ color: '#e76e55' }}>
+          INSERT COIN TO CONTINUE
+        </p>
       </div>
     </div>
   );

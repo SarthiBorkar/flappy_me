@@ -59,9 +59,9 @@ export const createPipe = (x: number): Pipe => {
 export const initializeGameState = (): GameEngineState => ({
   bird: createBird(),
   pipes: [
-    createPipe(GAME_CONFIG.CANVAS_WIDTH),
-    createPipe(GAME_CONFIG.CANVAS_WIDTH + 250),
-    createPipe(GAME_CONFIG.CANVAS_WIDTH + 500),
+    createPipe(GAME_CONFIG.CANVAS_WIDTH + 100),
+    createPipe(GAME_CONFIG.CANVAS_WIDTH + 400),
+    createPipe(GAME_CONFIG.CANVAS_WIDTH + 700),
   ],
   score: 0,
   isRunning: true,
@@ -99,10 +99,21 @@ export const jump = (bird: Bird): Bird => ({
   rotation: -45,
 });
 
-export const movePipes = (pipes: Pipe[]): Pipe[] => {
+// Calculate progressive speed based on score
+export const calculateSpeed = (score: number): number => {
+  // Speed increases every 5 points
+  const speedBoost = Math.floor(score / 5) * GAME_CONFIG.PIPE_SPEED_INCREMENT;
+  const currentSpeed = GAME_CONFIG.PIPE_SPEED + speedBoost;
+
+  // Cap at maximum speed
+  return Math.min(currentSpeed, GAME_CONFIG.PIPE_SPEED_MAX);
+};
+
+export const movePipes = (pipes: Pipe[], score: number): Pipe[] => {
+  const speed = calculateSpeed(score);
   return pipes.map((pipe) => ({
     ...pipe,
-    x: pipe.x - GAME_CONFIG.PIPE_SPEED,
+    x: pipe.x - speed,
   }));
 };
 
@@ -114,7 +125,8 @@ export const shouldAddNewPipe = (pipes: Pipe[]): boolean => {
   if (pipes.length === 0) return true;
 
   const lastPipe = pipes[pipes.length - 1];
-  return lastPipe.x < GAME_CONFIG.CANVAS_WIDTH - 250;
+  // Wider spacing between pipes for the wider canvas
+  return lastPipe.x < GAME_CONFIG.CANVAS_WIDTH - 300;
 };
 
 export const removeOffscreenPipes = (pipes: Pipe[]): Pipe[] => {
@@ -215,8 +227,8 @@ export const updateGameState = (
   // Apply physics
   bird = applyGravity(bird);
 
-  // Move pipes
-  let pipes = movePipes(state.pipes);
+  // Move pipes (speed increases with score)
+  let pipes = movePipes(state.pipes, state.score);
 
   // Remove offscreen pipes
   pipes = removeOffscreenPipes(pipes);

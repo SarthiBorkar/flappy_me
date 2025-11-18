@@ -24,72 +24,71 @@ export const NFTMinting = ({ score, playerName, birdImage, onClose }: NFTMinting
   };
 
   return (
-    <div className="p-6 bg-purple-900/90 backdrop-blur-sm rounded-lg border-2 border-purple-400">
-      <h3 className="text-white font-bold text-xl mb-4 text-center">
-        🎨 Mint Your Score as NFT
-      </h3>
+    <div className="retro-panel bg-black p-6">
+      <div className="retro-panel bg-purple-600 px-6 py-3 mb-4">
+        <h3 className="pixel-text text-sm text-white text-center">
+          🎨 MINT NFT
+        </h3>
+      </div>
 
-      <div className="mb-4 p-4 bg-white/10 rounded-lg">
-        <p className="text-white/80 text-sm mb-2">This will create an NFT with:</p>
-        <ul className="text-white text-sm space-y-1">
-          <li>• Score: {score}</li>
-          <li>• Player: {playerName}</li>
-          <li>• Your pixelated bird</li>
-          <li>• Minted on {CURRENT_NETWORK.name}</li>
-        </ul>
+      <div className="retro-panel bg-white p-4 mb-4">
+        <p className="text-xs mb-3" style={{ color: '#454545' }}>NFT INCLUDES:</p>
+        <div className="space-y-2 text-xs" style={{ color: '#212529' }}>
+          <div>▶ SCORE: {score}</div>
+          <div>▶ PLAYER: {playerName}</div>
+          <div>▶ YOUR PIXELATED BIRD</div>
+          <div>▶ CHAIN: {CURRENT_NETWORK.name}</div>
+        </div>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-500/20 border border-red-400 rounded-lg">
-          <p className="text-red-200 text-sm">{error}</p>
+        <div className="retro-panel bg-red-600 p-3 mb-4">
+          <p className="text-xs text-white">{error}</p>
         </div>
       )}
 
       {txHash && (
-        <div className="mb-4 p-3 bg-green-500/20 border border-green-400 rounded-lg">
-          <p className="text-green-200 text-sm mb-1">✅ NFT Minted Successfully!</p>
+        <div className="retro-panel p-4 mb-4" style={{ background: '#92cc41' }}>
+          <p className="pixel-text text-xs text-black mb-2">✅ MINTED!</p>
           <a
             href={`${CURRENT_NETWORK.blockExplorer}/tx/${txHash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-green-300 text-xs underline break-all"
+            className="text-xs text-black underline break-all"
           >
-            View on Explorer
+            VIEW ON EXPLORER
           </a>
         </div>
       )}
 
-      <div className="flex gap-2">
+      <div className="space-y-3">
         <button
           onClick={handleMint}
           disabled={isMinting || !!txHash}
-          className="flex-1 px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="retro-btn retro-btn-blue w-full text-sm"
         >
           {isMinting ? (
-            <span className="flex items-center justify-center">
-              <span className="animate-spin mr-2">⏳</span>
-              Minting...
-            </span>
+            <span className="blink">⏳ MINTING...</span>
           ) : txHash ? (
-            '✅ Minted!'
+            '✅ MINTED!'
           ) : (
-            '⛏️ Mint NFT'
+            '⛏️ MINT NFT'
           )}
         </button>
 
         {!isMinting && (
           <button
             onClick={onClose}
-            className="px-4 py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all"
+            className="retro-btn retro-btn-red w-full text-xs"
           >
-            Cancel
+            CANCEL
           </button>
         )}
       </div>
 
       {isMinting && (
-        <p className="text-white/60 text-xs text-center mt-2">
-          This may take a few moments...
+        <p className="text-xs text-center mt-3 blink" style={{ color: '#92cc41' }}>
+          PLEASE WAIT...
         </p>
       )}
     </div>

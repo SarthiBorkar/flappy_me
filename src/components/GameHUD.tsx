@@ -1,5 +1,8 @@
 'use client';
 
+import { GAME_CONFIG } from '@/utils/constants';
+import { calculateSpeed } from '@/utils/gameEngine';
+
 interface GameHUDProps {
   score: number;
   rank?: number;
@@ -9,29 +12,45 @@ interface GameHUDProps {
 }
 
 export const GameHUD = ({ score, rank, balance, isPaused, onPause }: GameHUDProps) => {
+  const currentSpeed = calculateSpeed(score);
+  const speedPercent = Math.round((currentSpeed / GAME_CONFIG.PIPE_SPEED_MAX) * 100);
   return (
-    <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start pointer-events-none">
-      {/* Score */}
-      <div className="bg-black/50 backdrop-blur-sm px-6 py-3 rounded-lg border-2 border-white/40">
-        <p className="text-white/80 text-xs mb-1">SCORE</p>
-        <p className="text-white text-4xl font-bold drop-shadow-lg">{score}</p>
+    <div className="absolute top-0 left-0 right-0 p-2 flex justify-between items-start pointer-events-none z-10">
+      {/* Score Display */}
+      <div className="retro-panel bg-black px-6 py-3 pointer-events-auto">
+        <div className="text-xs mb-1" style={{ color: '#f7d51d' }}>SCORE</div>
+        <div className="pixel-text text-3xl" style={{ color: '#fff' }}>
+          {score.toString().padStart(6, '0')}
+        </div>
       </div>
 
       {/* Info Panel */}
       <div className="space-y-2">
-        {rank !== undefined && rank > 0 && (
-          <div className="bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-yellow-400/60">
-            <p className="text-yellow-300 text-xs mb-1">RANK</p>
-            <p className="text-yellow-400 text-xl font-bold">#{rank}</p>
+        {/* Speed Indicator */}
+        <div className="retro-panel bg-black px-4 py-2 pointer-events-auto">
+          <div className="text-xs mb-1" style={{ color: '#f7d51d' }}>
+            SPEED
+          </div>
+          <div className="pixel-text text-xs" style={{ color: speedPercent >= 80 ? '#e76e55' : '#92cc41' }}>
+            {speedPercent}%
+          </div>
+        </div>
+
+        {/* Balance */}
+        {balance && (
+          <div className="retro-panel bg-black px-4 py-2 pointer-events-auto">
+            <div className="text-xs" style={{ color: '#92cc41' }}>
+              💰 {parseFloat(balance).toFixed(2)}
+            </div>
           </div>
         )}
 
-        {balance && (
-          <div className="bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-green-400/60">
-            <p className="text-green-300 text-xs mb-1">cUSD</p>
-            <p className="text-green-400 text-xl font-bold">
-              {parseFloat(balance).toFixed(2)}
-            </p>
+        {/* Rank */}
+        {rank !== undefined && rank > 0 && (
+          <div className="retro-panel bg-black px-4 py-2 pointer-events-auto">
+            <div className="text-xs" style={{ color: '#f7d51d' }}>
+              🏆 #{rank}
+            </div>
           </div>
         )}
 
@@ -39,9 +58,9 @@ export const GameHUD = ({ score, rank, balance, isPaused, onPause }: GameHUDProp
         {onPause && (
           <button
             onClick={onPause}
-            className="bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-white/40 text-white hover:bg-black/70 pointer-events-auto"
+            className="retro-btn retro-btn-red text-xs px-3 py-2 pointer-events-auto"
           >
-            {isPaused ? '▶️' : '⏸️'}
+            {isPaused ? '▶' : '⏸'}
           </button>
         )}
       </div>

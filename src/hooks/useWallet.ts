@@ -59,8 +59,10 @@ export const useWallet = (): UseWalletReturn => {
   // BALANCE REFRESH
   // ============================================
 
-  const refreshBalance = useCallback(async () => {
-    if (!address) {
+  const refreshBalance = useCallback(async (addressToUse?: Address) => {
+    const targetAddress = addressToUse || address;
+
+    if (!targetAddress) {
       if (IS_DEBUG) {
         console.log('⏭️ Skipping balance refresh: No address');
       }
@@ -69,10 +71,10 @@ export const useWallet = (): UseWalletReturn => {
 
     try {
       if (IS_DEBUG) {
-        console.log('🔄 Refreshing balance for:', address);
+        console.log('🔄 Refreshing balance for:', targetAddress);
       }
 
-      const balances = await getBalances(address);
+      const balances = await getBalances(targetAddress);
 
       if (isMountedRef.current) {
         setBalance(balances);
@@ -98,40 +100,33 @@ export const useWallet = (): UseWalletReturn => {
 
   const connect = useCallback(async () => {
     if (isConnecting || isConnected) {
-      if (IS_DEBUG) {
-        console.log('⏭️ Connection already in progress or established');
-      }
+      console.log('⏭️ Connection already in progress or established');
       return;
     }
 
+    console.log('🔌 Starting wallet connection...');
     setIsConnecting(true);
     setError(null);
 
     try {
       // Check if wallet exists
       if (typeof window === 'undefined' || !window.ethereum) {
+        console.error('❌ No wallet found');
         throw new Error(ERROR_MESSAGES.WALLET_NOT_FOUND);
       }
 
-      // Verify network
-      const isCorrectNetwork = await verifyNetwork();
-      if (!isCorrectNetwork) {
-        if (IS_DEBUG) {
-          console.log('⚠️ Wrong network detected, attempting to switch...');
-        }
+      console.log('✅ Wallet detected:', window.ethereum.isMetaMask ? 'MetaMask' : 'Unknown');
 
-        const switched = await switchNetwork();
-        if (!switched) {
-          throw new Error(ERROR_MESSAGES.WRONG_NETWORK);
-        }
-      }
-
-      // Connect wallet
+      // Connect wallet - request accounts
+      console.log('📡 Requesting accounts...');
       const connectedAddress = await connectWallet();
 
       if (!connectedAddress) {
+        console.error('❌ No address returned');
         throw new Error(ERROR_MESSAGES.CONNECTION_REJECTED);
       }
+
+      console.log('✅ Address received:', connectedAddress);
 
       if (isMountedRef.current) {
         setAddress(connectedAddress);
@@ -140,20 +135,24 @@ export const useWallet = (): UseWalletReturn => {
         // Store address in localStorage
         localStorage.setItem(STORAGE_KEYS.WALLET_ADDRESS, connectedAddress);
 
-        // Fetch balances
-        await refreshBalance();
-
-        if (IS_DEBUG) {
-          console.log('✅ Wallet connected successfully:', connectedAddress);
+        console.log('💰 Fetching balances...');
+        // Fetch balances (but don't fail connection if this fails)
+        // Pass the address directly since state hasn't updated yet
+        try {
+          await refreshBalance(connectedAddress);
+        } catch (balanceErr) {
+          console.warn('⚠️ Balance fetch failed (non-critical):', balanceErr);
         }
+
+        console.log('🎉 Wallet connected successfully!');
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : ERROR_MESSAGES.UNKNOWN_ERROR;
+      console.error('❌ Wallet connection failed:', err);
 
       if (isMountedRef.current) {
         setError(errorMessage);
         setIsConnected(false);
-        console.error('❌ Wallet connection failed:', err);
       }
     } finally {
       if (isMountedRef.current) {

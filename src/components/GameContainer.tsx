@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useWallet } from '@/hooks/useWallet';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
@@ -15,10 +15,17 @@ type GameScreen = 'start' | 'playing' | 'gameover' | 'leaderboard';
 
 export const GameContainer = () => {
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('start');
+  const [mounted, setMounted] = useState(false);
+
   const { gameState, highScore, startGame, pauseGame, resumeGame, handleJump, restartGame } =
     useGameState();
   const { address, balance, isConnected } = useWallet();
   const { profilePicture } = useProfilePicture();
+
+  // Prevent hydration errors
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Handle game start
   const handleStart = () => {
@@ -43,18 +50,33 @@ export const GameContainer = () => {
   };
 
   // Detect when game ends
-  if (gameState.isGameOver && currentScreen === 'playing') {
-    setCurrentScreen('gameover');
+  useEffect(() => {
+    if (gameState.isGameOver && currentScreen === 'playing') {
+      setCurrentScreen('gameover');
+    }
+  }, [gameState.isGameOver, currentScreen]);
+
+  // Show loading until mounted
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center scanlines" style={{ background: '#212529' }}>
+        <div className="pixel-text text-white text-2xl blink">LOADING...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-sky-400 to-sky-600">
-      {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-5xl font-bold text-white text-center drop-shadow-lg">
-          🐦 Flappy Bird
-        </h1>
-        <p className="text-white/80 text-center">MiniPay Edition</p>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 scanlines" style={{ background: 'linear-gradient(to bottom, #209cee, #7038f8)' }}>
+      {/* Retro Arcade Header */}
+      <div className="mb-6 text-center">
+        <div className="inline-block retro-panel bg-black px-8 py-4">
+          <h1 className="pixel-text text-4xl" style={{ color: '#f7d51d' }}>
+            🐦 FLAPPY BIRD 🐦
+          </h1>
+          <div className="text-xs mt-2" style={{ color: '#92cc41' }}>
+            PLAYER 1
+          </div>
+        </div>
       </div>
 
       {/* Main Game Area */}
@@ -76,6 +98,13 @@ export const GameContainer = () => {
               birdImage={profilePicture?.pixelated}
               onJump={handleJump}
             />
+            {!gameState.isPaused && (
+              <div className="mt-4 text-center">
+                <div className="pixel-text text-white text-xs blink">
+                  PRESS ANYWHERE!
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -94,30 +123,31 @@ export const GameContainer = () => {
         )}
       </div>
 
-      {/* Footer Info */}
+      {/* Wallet Status (bottom) */}
       {currentScreen === 'start' && !isConnected && (
-        <div className="mt-6 max-w-md">
+        <div className="mt-6 max-w-2xl w-full">
           <WalletStatus />
         </div>
       )}
 
+      {/* Leaderboard Button */}
       {currentScreen === 'start' && isConnected && (
         <div className="mt-4 text-center">
           <button
             onClick={handleViewLeaderboard}
-            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all"
+            className="retro-btn text-xs"
           >
-            🏆 View Leaderboard
+            🏆 LEADERBOARD
           </button>
         </div>
       )}
 
-      {/* Instructions for playing screen */}
-      {currentScreen === 'playing' && !gameState.isPaused && (
-        <div className="mt-4 text-white/80 text-center text-sm">
-          <p>Tap or click to fly!</p>
+      {/* Footer Credits */}
+      <div className="mt-8 text-center">
+        <div className="pixel-text text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          © 2024 CELO × MINIPAY
         </div>
-      )}
+      </div>
     </div>
   );
 };

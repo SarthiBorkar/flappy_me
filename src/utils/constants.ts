@@ -62,19 +62,21 @@ export const CUSD_CONTRACT_ADDRESS = CURRENT_NETWORK.contracts.cUSD;
 
 export const GAME_CONFIG = {
   // Physics
-  GRAVITY: 0.6,
-  JUMP_VELOCITY: -10,
-  MAX_VELOCITY: 15,
-  PIPE_SPEED: 3,
-  PIPE_GAP: 150,
+  GRAVITY: 0.5,
+  JUMP_VELOCITY: -9,
+  MAX_VELOCITY: 12,
+  PIPE_SPEED: 1.5, // Initial speed (slower)
+  PIPE_SPEED_INCREMENT: 0.15, // Speed increase per score milestone
+  PIPE_SPEED_MAX: 4.5, // Maximum speed cap
+  PIPE_GAP: 200, // Wider gap for easier gameplay
   PIPE_WIDTH: 80,
 
   // Bird
   BIRD_SIZE: 40,
-  BIRD_X_POSITION: 100,
+  BIRD_X_POSITION: 150,
 
-  // Canvas
-  CANVAS_WIDTH: 400,
+  // Canvas - Wider view!
+  CANVAS_WIDTH: 800,
   CANVAS_HEIGHT: 600,
 
   // Scoring
